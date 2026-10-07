@@ -45,7 +45,7 @@ exports.handler = async (event) => {
   const json = (code, body) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (event.httpMethod !== 'POST') return json(405, { error: 'POST only' });
   const gKey = process.env.GEMINI_API_KEY, aKey = process.env.ANTHROPIC_API_KEY;
-  if (!gKey && !aKey) return json(500, { error: 'not configured' });
+  if (!gKey && !aKey) return json(500, { error: 'GEMINI_API_KEY not found on this site' });
   const ip = (event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || 'unknown');
   if (!ok(ip)) return json(429, { error: 'slow down' });
   let b;
@@ -68,7 +68,7 @@ exports.handler = async (event) => {
         })
       });
       if (r.status === 429) return json(429, { error: 'busy' });
-      if (!r.ok) return json(502, { error: 'upstream' });
+      if (!r.ok) { let m = ''; try { m = clip(((await r.json()).error || {}).message, 160); } catch (e) {} return json(502, { error: 'gemini ' + r.status + ' ' + m }); }
       const d = await r.json();
       const parts = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || [];
       text = parts.map(c => c.text || '').join('').trim();
@@ -83,7 +83,7 @@ exports.handler = async (event) => {
       const d = await r.json();
       text = (d.content || []).map(c => c.text || '').join('').trim();
     }
-    if (!text) return json(502, { error: 'empty' });
+    if (!text) return json(502, { error: 'empty reply' });
     return json(200, { text });
-  } catch (e) { return json(502, { error: 'upstream' }); }
+  } catch (e) { return json(502, { error: 'call failed ' + clip(e && e.message, 80) }); }
 };

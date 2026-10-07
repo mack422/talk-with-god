@@ -679,7 +679,7 @@ body {
       });
       clearTimeout(to);
       if (res.status === 429) return { quiet: true };
-      if (!res.ok) return { quiet: true };
+      if (!res.ok) { var why = ''; try { why = (await res.json()).error || ''; } catch (e2) {} return { quiet: true, why: res.status + ' ' + why }; }
       var data = await res.json();
       var r = parse(data && data.text);
       if (!r.text) return { quiet: true };
@@ -775,7 +775,7 @@ body {
     var r = await getAnswer(q, passages);
     orb.hidden = true;
     if (r.denied) { idle(); setNote('Allow this page to ask Claude when prompted, then send your question again.'); return; }
-    if (r.quiet) { idle(); setNote('The silence is long just now. Wait a moment and try again.'); return; }
+    if (r.quiet) { idle(); setNote('The silence is long just now. Wait a moment and try again.' + (r.why ? ' [' + r.why + ']' : '')); return; }
     if (r.care) { S.busy = false; showCare(r.text || CARE_MSG); return; }
     S.busy = false;
     showAnswer(r, true, q);
