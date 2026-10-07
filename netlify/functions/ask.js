@@ -45,9 +45,9 @@ exports.handler = async (event) => {
   const json = (code, body) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (event.httpMethod !== 'POST') {
     // Open this address in a browser to see which AI keys this site can see. No secrets are shown.
-    return json(200, { ok: true, keys: { GROQ_API_KEY: !!process.env.GROQ_API_KEY, GEMINI_API_KEY: !!process.env.GEMINI_API_KEY, DEEPSEEK_API_KEY: !!process.env.DEEPSEEK_API_KEY, ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY } });
+    return json(200, { ok: true, keys: { GROQ_API_KEY: !!process.env.GROQ_API_KEY, GEMINI_API_KEY: !!(process.env.GEMINI_API_KEY || process.env.GEMENI_API_KEY), DEEPSEEK_API_KEY: !!process.env.DEEPSEEK_API_KEY, ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY } });
   }
-  const gKey = process.env.GEMINI_API_KEY, aKey = process.env.ANTHROPIC_API_KEY;
+  const gKey = process.env.GEMINI_API_KEY || process.env.GEMENI_API_KEY, aKey = process.env.ANTHROPIC_API_KEY;
   const dKey = process.env.DEEPSEEK_API_KEY, qKey = process.env.GROQ_API_KEY;
   if (!gKey && !aKey && !dKey && !qKey) return json(500, { error: 'No AI key found on this site' });
   const ip = (event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || 'unknown');
