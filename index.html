@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}</style>
+<title>Talk with God</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap">
+<style>
+/* Layout concept: one quiet screen. A drifting cloud sky with a low golden dawn, one underlined line to speak into, one answer that arrives word by word and fades away. */
+:root {
+  --night: #080720;
+  --deep: #15113a;
+  --dusk: #2c2166;
+  --haze: #6a4c9c;
+  --glow: #f3c98b;
+  --pearl: #f5f0ff;
+  --mist: rgba(236, 228, 255, 0.72);
+  --line: rgba(236, 228, 255, 0.32);
+  --font-display: 'Crimson Pro', 'Times New Roman', Times, 'Liberation Serif', serif;
+  --font-ui: 'Crimson Pro', 'Times New Roman', Times, 'Liberation Serif', serif;
+  --font-cap: 'Cinzel', 'Trajan Pro', 'Times New Roman', Times, serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--night);
+  color: var(--pearl);
+  font-family: var(--font-ui);
+  overflow: hidden;
+  position: relative;
+}
+.sr {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.sky-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, #120e3c 0%, #2c2166 24%, #6a4c9c 52%, #d89aa8 78%, #ffd9a8 100%);
+}
+#sky { position: fixed; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; }
+.halo {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 55% 50% at 50% 22%, rgba(255, 236, 190, 0.55), rgba(243, 201, 139, 0.18) 45%, transparent 75%);
+  animation: breathe 9s ease-in-out infinite;
+}
+@keyframes breathe { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+.rays {
+  position: fixed; inset: -20%; z-index: 2; pointer-events: none; opacity: 0.5;
+  background: repeating-conic-gradient(from 90deg at 50% 0%, rgba(255, 232, 180, 0.13) 0deg 2.2deg, transparent 2.2deg 8deg);
+  -webkit-mask-image: radial-gradient(ellipse 60% 75% at 50% 0%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 75% at 50% 0%, #000, transparent 75%);
+  transform-origin: 50% 0%; animation: sway 46s ease-in-out infinite alternate;
+}
+@keyframes sway { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
+.vig {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(8, 6, 32, 0.38) 0%, rgba(8, 6, 32, 0.18) 40%, rgba(4, 3, 16, 0.62) 100%);
+}
+
+.top {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 8; pointer-events: none;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: calc(1rem + env(safe-area-inset-top, 0px)) 1rem 1rem;
+}
+.mark {
+  display: none;
+  font: 400 0.8rem/1 var(--font-cap); letter-spacing: 0.42em; text-transform: uppercase; color: var(--mist);
+  text-shadow: 0 0 18px rgba(243, 201, 139, 0.4);
+}
+.snd-wrap { display: grid; justify-items: end; gap: 0.5rem; }
+.cue { margin: 0; max-width: 11rem; text-align: right; font: italic 400 0.82rem/1.3 var(--font-display); color: var(--mist); text-shadow: 0 1px 12px rgba(8,6,32,.9); animation: cuepulse 4s ease-in-out infinite; transition: opacity 1.5s; }
+.cue.gone { opacity: 0; animation: none; pointer-events: none; }
+@keyframes cuepulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
+.hint { opacity: 0; transition: opacity .6s; pointer-events: none; margin: 0; font: italic 400 0.82rem/1.25 var(--font-display); color: var(--mist); text-align: right; max-width: 13rem; }
+.snd {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font: 400 0.68rem/1 var(--font-cap); letter-spacing: 0.16em; text-transform: uppercase; color: var(--pearl);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); border-radius: 999px;
+  padding: 0.55rem 0.9rem; cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+}
+.snd-wrap:hover .hint, .snd-wrap:focus-within .hint { opacity: 1; }
+.top .snd { pointer-events: auto; }
+.snd { opacity: .55; }
+.snd { padding: 0.6rem; border: 0; background: transparent; border-radius: 50%; }
+.snd:hover { background: transparent; }
+.snd:hover, .snd:focus-visible { opacity: 1; }
+.snd:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--glow); }
+.snd:focus-visible, .go:focus-visible, .btn:focus-visible, .care a:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
+.snd svg { width: 1rem; height: 1rem; flex: none; }
+
+.stage {
+  position: fixed; inset: 0; z-index: 5;
+  display: grid; place-items: center;
+  padding: 5rem 1rem;
+}
+.stage > * { grid-area: 1 / 1; }
+
+.ask { position: relative; width: min(40rem, 100%); transition: opacity 1s ease; }
+.ask.away { opacity: 0; pointer-events: none; }
+.ask input {
+  width: 100%; box-sizing: border-box; min-width: 0;
+  background: transparent; border: 0; border-radius: 0; outline: none; box-shadow: none; -webkit-appearance: none; appearance: none;
+  font: italic 300 clamp(1.9rem, 6vw, 3.2rem)/1.3 var(--font-display); letter-spacing: 0.04em;
+  color: var(--pearl); text-align: center; text-shadow: 0 0 28px rgba(243, 201, 139, 0.22);
+  padding: 0.55em 2.4em 0.55em 0.6em; caret-color: var(--glow);
+  
+}
+.ask input::placeholder { color: var(--mist); opacity: 1; }
+.ask input:focus { outline: none; box-shadow: none; }
+.go {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 2.1rem; height: 2.1rem; display: grid; place-items: center;
+  background: transparent; color: var(--mist); border: 0; border-radius: 50%; cursor: pointer; opacity: .7;
+  transition: opacity 0.3s;
+}
+.go:hover { opacity: 1; }
+.go svg { width: 1rem; height: 1rem; }
+.note { position: absolute; left: 0; right: 0; top: calc(100% + 1rem); margin: 0; text-align: center; font-size: 0.82rem; color: var(--mist); min-height: 1.2em; }
+
+.orb { display: grid; justify-items: center; gap: 1.4rem; }
+.orb i {
+  width: 7rem; height: 7rem; border-radius: 50%; display: block;
+  background: radial-gradient(circle, rgba(255, 244, 222, 0.95) 0%, rgba(243, 201, 139, 0.5) 38%, rgba(243, 201, 139, 0) 70%);
+  animation: orb 6s ease-in-out infinite;
+}
+.orb span { font: 400 0.72rem/1 var(--font-cap); letter-spacing: 0.4em; text-transform: uppercase; color: var(--mist); }
+@keyframes orb { 0%, 100% { transform: scale(0.85); opacity: 0.7; } 50% { transform: scale(1.2); opacity: 1; } }
+
+.reply { width: min(34rem, 100%); text-align: center; transition: opacity 3.2s ease, transform 3.2s ease, filter 3.2s ease; }
+.reply.leaving { opacity: 0; transform: translateY(-10px); filter: blur(12px); }
+.text {
+  margin: 0; font: 400 clamp(1.45rem, 4.2vw, 2.2rem)/1.6 var(--font-display); letter-spacing: 0.03em;
+  color: var(--pearl); text-wrap: pretty; text-shadow: 0 0 3px rgba(8,6,32,.7), 0 1px 28px rgba(8, 6, 32, 0.98), 0 0 60px rgba(8,6,32,.8);
+}
+.w { display: inline-block; opacity: 0; filter: blur(6px); transform: translateY(6px); animation: rise 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; animation-delay: calc(var(--i) * 65ms); }
+@keyframes rise { to { opacity: 1; filter: blur(0); transform: none; } }
+.src {
+  display: none;
+  margin: 1.8rem 0 0; font: 400 0.7rem/1.7 var(--font-cap); letter-spacing: 0.2em; text-transform: uppercase; color: var(--mist);
+  text-shadow: 0 1px 14px rgba(8, 6, 32, 0.95); opacity: 0; animation: fade 1.6s ease forwards;
+}
+@keyframes fade { to { opacity: 1; } }
+.hair { width: 4rem; height: 1px; margin: 1.6rem auto 0; background: rgba(236, 228, 255, 0.18); opacity: 0; transition: opacity 1s; }
+.reply.timing .hair { opacity: 1; }
+.hair i { display: block; height: 100%; background: var(--glow); transform-origin: left; transform: scaleX(1); }
+
+.leave-btn { margin-top: 1.4rem; opacity: 0; pointer-events: none; transition: opacity 1.2s, background .3s, border-color .3s; }
+.reply.timing .leave-btn { opacity: 1; pointer-events: auto; }
+.reply.leaving .leave-btn { opacity: 0; pointer-events: none; }
+.care, .end { width: min(32rem, 100%); text-align: center; display: grid; gap: 1.2rem; justify-items: center; }
+.care p { margin: 0; font: 400 1.25rem/1.6 var(--font-ui); color: var(--pearl); text-shadow: 0 1px 20px rgba(8, 6, 32, 0.95); }
+.care .help { font-size: 1.05rem; color: var(--mist); }
+.care a { color: var(--glow); text-underline-offset: 3px; }
+.end p { margin: 0; font: italic 300 clamp(1.8rem, 5.4vw, 2.7rem)/1.3 var(--font-display); text-shadow: 0 1px 26px rgba(8, 6, 32, 0.95), 0 0 34px rgba(243, 201, 139, 0.25); }
+.btn {
+  font: 400 0.72rem/1 var(--font-cap); letter-spacing: 0.2em; text-transform: uppercase; color: var(--pearl);
+  background: rgba(255, 255, 255, 0.05); border: 1px solid var(--line); border-radius: 999px;
+  padding: 0.85rem 1.4rem; cursor: pointer; transition: background 0.3s, border-color 0.3s;
+}
+.btn:hover { background: rgba(243, 201, 139, 0.14); border-color: var(--glow); }
+
+.dots { position: fixed; left: 0; right: 0; z-index: 5; bottom: calc(4.4rem + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; gap: 0.7rem; }
+.dots b { width: 0.5rem; height: 0.5rem; border-radius: 50%; border: 1px solid var(--line); box-sizing: border-box; }
+.dots b.on { background: var(--glow); border-color: var(--glow); box-shadow: 0 0 12px rgba(243, 201, 139, 0.8); }
+
+.foot {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; box-sizing: border-box;
+  padding: 0.9rem 1rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  text-align: center; font-style: italic; font-size: 0.78rem; line-height: 1.45; letter-spacing: 0.02em; color: var(--mist); opacity: .6; text-shadow: 0 1px 12px rgba(8,6,32,.9);
+}
+.foot span { display: block; max-width: 36rem; margin: 0 auto; }
+
+.gate {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-content: center; justify-items: center; gap: 2.2rem;
+  background: radial-gradient(ellipse at 50% 40%, #2c2166 0%, #120e3c 70%, #080720 100%);
+  cursor: pointer; transition: opacity 2.4s ease; padding: 1rem; text-align: center; -webkit-tap-highlight-color: transparent;
+}
+.gate.open { opacity: 0; pointer-events: none; }
+.gate p { margin: 0; font: 400 0.8rem/1.8 var(--font-cap); letter-spacing: 0.36em; text-transform: uppercase; color: var(--mist); text-shadow: 0 0 22px rgba(243,201,139,.4); animation: cuepulse 5s ease-in-out infinite; }
+.gate-orb { width: 5rem; height: 5rem; border-radius: 50%; background: radial-gradient(circle, rgba(255,244,222,.95) 0%, rgba(243,201,139,.45) 40%, rgba(243,201,139,0) 70%); animation: orb 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .gate p, .gate-orb { animation: none; }
+  .halo, .orb i, .rays { animation: none; }
+  .w, .src { animation: none; opacity: 1; filter: none; transform: none; }
+  .reply, .ask, .hair { transition-duration: 0.01ms; }
+}
+</style>
+</head>
+<body>
+
+<div class="sky-bg" aria-hidden="true"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="halo" aria-hidden="true"></div>
+<div class="vig" aria-hidden="true"></div>
+
+<header class="top" style="justify-content:flex-end">
+  <div class="snd-wrap">
+    <button id="mute" class="snd" type="button" aria-pressed="false" aria-label="Mute sound">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"/><path id="wave1" d="M15.5 9a4 4 0 0 1 0 6"/><path id="wave2" d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="stage">
+  <form id="ask" class="ask" autocomplete="off">
+    <label for="q" class="sr">Your question</label>
+    <input id="q" name="q" type="text" maxlength="280" placeholder="talk to me my child" enterkeyhint="send">
+    <button class="go" type="submit" aria-label="Send your question">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+    </button>
+    <p id="note" class="note" role="status"></p>
+  </form>
+
+  <section id="orb" class="orb" hidden aria-live="polite">
+    <i aria-hidden="true"></i>
+    <span>Listening</span>
+  </section>
+
+  <section id="reply" class="reply" hidden aria-live="polite">
+    <p id="text" class="text"></p>
+    <p id="src" class="src"></p>
+    <div class="hair" aria-hidden="true"><i id="hairbar"></i></div>
+    <button id="leave" class="btn leave-btn" type="button">Click away</button>
+  </section>
+
+  <section id="care" class="care" hidden>
+    <p id="careText"></p>
+    <p class="help">Find a free crisis line in your country at <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer">findahelpline.com</a>. In the US you can call or text 988. If you are in danger right now, call your local emergency number.</p>
+    <button id="careClose" class="btn" type="button">Return</button>
+  </section>
+
+  <section id="end" class="end" hidden>
+    <p>Go in peace, my child.</p>
+    <button id="again" class="btn" type="button">Begin anew</button>
+  </section>
+</main>
+
+<div id="dots" class="dots" hidden role="img" aria-label="Two questions remain"><b></b><b></b></div>
+<footer class="foot"><span>The actual voice of God himself. It is not a substitute for professional or pastoral care</span></footer>
+
+<div id="gate" class="gate" role="button" tabindex="0" aria-label="Touch here to begin God's transmission">
+  <span class="gate-orb" aria-hidden="true"></span>
+  <p>Touch here to begin God&rsquo;s transmission</p>
+</div>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Library: KJV verses are quoted exactly; everything else is a short paraphrase ---------- */
+  var P = [
+    { t: 'Bible (KJV)', r: 'Psalm 46:10', k: 'v', x: 'Be still, and know that I am God', m: 'peace rest fear anxiety control faith' },
+    { t: 'Bible (KJV)', r: 'Psalm 23:4', k: 'v', x: 'Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.', m: 'grief death fear loneliness suffering' },
+    { t: 'Bible (KJV)', r: 'Matthew 11:28', k: 'v', x: 'Come unto me, all ye that labour and are heavy laden, and I will give you rest.', m: 'rest burnout suffering anxiety' },
+    { t: 'Bible (KJV)', r: 'Philippians 4:6-7', k: 'v', x: 'Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.', m: 'anxiety fear peace control future' },
+    { t: 'Bible (KJV)', r: 'Isaiah 41:10', k: 'v', x: 'Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.', m: 'fear loneliness strength anxiety' },
+    { t: 'Bible (KJV)', r: 'Ecclesiastes 3:1', k: 'v', x: 'To every thing there is a season, and a time to every purpose under the heaven:', m: 'patience change grief purpose future' },
+    { t: 'Bible (KJV)', r: 'Matthew 6:34', k: 'v', x: 'Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof.', m: 'anxiety future control' },
+    { t: 'Bible (KJV)', r: 'Proverbs 3:5-6', k: 'v', x: 'Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.', m: 'decision wisdom purpose faith future' },
+    { t: 'Bible (KJV)', r: 'Psalm 34:18', k: 'v', x: 'The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit.', m: 'grief loneliness suffering love' },
+    { t: 'Bible (KJV)', r: 'Ephesians 4:32', k: 'v', x: "And be ye kind one to another, tenderhearted, forgiving one another, even as God for Christ's sake hath forgiven you.", m: 'forgiveness anger relationships love' },
+    { t: 'Bible (KJV)', r: 'Matthew 7:7', k: 'v', x: 'Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you:', m: 'purpose doubt faith decision' },
+    { t: 'Bible (KJV)', r: 'Proverbs 15:1', k: 'v', x: 'A soft answer turneth away wrath: but grievous words stir up anger.', m: 'anger relationships' },
+    { t: 'Bible (KJV)', r: 'Psalm 139:14', k: 'v', x: 'I will praise thee; for I am fearfully and wonderfully made: marvellous are thy works; and that my soul knoweth right well.', m: 'worth shame joy' },
+    { t: 'Bible (KJV)', r: 'John 14:27', k: 'v', x: 'Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.', m: 'peace fear anxiety' },
+    { t: 'Bible (KJV)', r: 'Micah 6:8', k: 'v', x: 'He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?', m: 'purpose wisdom decision love' },
+    { t: 'Bible (KJV)', r: 'Psalm 30:5', k: 'v', x: 'weeping may endure for a night, but joy cometh in the morning.', m: 'grief suffering hope patience' },
+    { t: 'Bible (KJV)', r: 'Joshua 1:9', k: 'v', x: 'Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.', m: 'fear strength purpose change' },
+    { t: 'Bible (KJV)', r: 'Matthew 5:4', k: 'v', x: 'Blessed are they that mourn: for they shall be comforted.', m: 'grief death' },
+    { t: 'Bible (KJV)', r: '1 Corinthians 13:13', k: 'v', x: 'And now abideth faith, hope, charity, these three; but the greatest of these is charity.', m: 'love hope faith relationships' },
+    { t: 'Bible (KJV)', r: 'Jeremiah 29:11', k: 'v', x: 'For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end.', m: 'future hope purpose anxiety' },
+    { t: 'Bible (KJV)', r: 'Mark 9:24', k: 'v', x: 'Lord, I believe; help thou mine unbelief.', m: 'doubt faith' },
+    { t: 'Bible (KJV)', r: 'Deuteronomy 31:6', k: 'v', x: 'he will not fail thee, nor forsake thee.', m: 'loneliness fear' },
+    { t: 'Bible (KJV)', r: 'Psalm 127:2', k: 'v', x: 'It is vain for you to rise up early, to sit up late, to eat the bread of sorrows: for so he giveth his beloved sleep.', m: 'rest burnout work anxiety' },
+    { t: 'Bible (KJV)', r: 'Colossians 3:23', k: 'v', x: 'And whatsoever ye do, do it heartily, as to the Lord, and not unto men;', m: 'work purpose' },
+    { t: 'Bible (KJV)', r: 'Luke 6:37', k: 'v', x: 'Judge not, and ye shall not be judged: condemn not, and ye shall not be condemned: forgive, and ye shall be forgiven:', m: 'forgiveness shame anger relationships' },
+    { t: 'Bible (KJV)', r: 'Psalm 118:24', k: 'v', x: 'This is the day which the LORD hath made; we will rejoice and be glad in it.', m: 'joy gratitude' },
+    { t: 'Bible (KJV)', r: '1 Thessalonians 5:18', k: 'v', x: 'In every thing give thanks: for this is the will of God in Christ Jesus concerning you.', m: 'gratitude joy' },
+    { t: 'Bible (KJV)', r: '1 Corinthians 13:4', k: 'v', x: 'Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up,', m: 'love relationships patience' },
+    { t: 'Bible (KJV)', r: 'James 1:5', k: 'v', x: 'If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.', m: 'wisdom decision doubt' },
+
+    { t: 'Tao Te Ching', r: 'Tao Te Ching, chapter 8', k: 't', x: 'Water benefits everything without striving and rests in the low places others avoid. The highest good is like water.', m: 'peace patience control worth' },
+    { t: 'Tao Te Ching', r: 'Tao Te Ching, chapter 33', k: 't', x: 'To know others is intelligence, to know yourself is wisdom. The one who knows when enough is enough is truly rich.', m: 'worth wisdom money contentment' },
+    { t: 'Tao Te Ching', r: 'Tao Te Ching, chapter 64', k: 't', x: 'A journey of a thousand miles begins with a single step. Those who rush to grasp things lose them.', m: 'purpose patience burnout future' },
+    { t: 'Tao Te Ching', r: 'Tao Te Ching, chapter 16', k: 't', x: 'Return to stillness. All things flourish and then return to their root, and this returning is peace.', m: 'peace rest change death' },
+    { t: 'Dhammapada', r: 'Dhammapada, verse 5', k: 't', x: 'Hatred is never calmed by hatred. Only love calms it. This is an ancient law.', m: 'anger forgiveness relationships' },
+    { t: 'Dhammapada', r: 'Dhammapada, verse 1', k: 't', x: 'Our experience is shaped by the mind. Act or speak with a troubled mind and suffering follows, as the wheel follows the ox.', m: 'anxiety suffering wisdom' },
+    { t: 'Dhammapada', r: 'Dhammapada, verse 276', k: 't', x: 'You must make the effort yourself. Teachers only point the way.', m: 'purpose doubt decision' },
+    { t: 'Dhammapada', r: 'Dhammapada, verse 100', k: 't', x: 'One word that brings peace is better than a thousand hollow words.', m: 'anger relationships wisdom' },
+    { t: 'Dhammapada', r: 'Dhammapada, verse 277', k: 't', x: 'All conditioned things are impermanent. Seeing this clearly, a person turns away from suffering.', m: 'change grief death suffering' },
+    { t: 'Karaniya Metta Sutta', r: 'Karaniya Metta Sutta', k: 't', x: 'As a mother protects her only child with her own life, cultivate a boundless heart toward all beings.', m: 'love relationships anger forgiveness' },
+    { t: 'Bhagavad Gita', r: 'Bhagavad Gita 2.47', k: 't', x: 'You have a right to your actions but never to their fruits. Act fully, without clinging to the result.', m: 'work purpose anxiety control failure' },
+    { t: 'Bhagavad Gita', r: 'Bhagavad Gita 2.20', k: 't', x: 'The self is never born and never dies. It is not harmed when the body is harmed.', m: 'death grief fear' },
+    { t: 'Bhagavad Gita', r: 'Bhagavad Gita 6.5', k: 't', x: 'Lift yourself by your own self and do not let yourself sink. The self is its own friend and its own enemy.', m: 'worth shame decision strength' },
+    { t: 'Bhagavad Gita', r: 'Bhagavad Gita 6.35', k: 't', x: 'The mind is restless and hard to hold, yet steady practice and letting go can calm it.', m: 'anxiety doubt peace' },
+    { t: 'Upanishads', r: 'Chandogya Upanishad 6.8.7', k: 't', x: 'Tat tvam asi: you are that. The divine ground is not apart from you.', m: 'worth faith loneliness' },
+    { t: 'Upanishads', r: 'Katha Upanishad 1.3.14', k: 't', x: 'Arise, awake, and seek out those who know. The path is narrow as the edge of a razor, and it can be walked.', m: 'purpose decision courage' },
+    { t: 'Upanishads', r: 'Isha Upanishad, verse 1', k: 't', x: 'All of this is pervaded by the divine. Enjoy what you have by letting go, and do not covet what belongs to another.', m: 'money contentment' },
+    { t: 'Vivekananda', r: 'Swami Vivekananda, lectures', k: 't', x: 'Strength is life and weakness is death. Do not wait to feel strong before you begin.', m: 'fear strength worth decision' },
+    { t: 'Rumi', r: 'Rumi, the guest house idea', k: 't', x: 'Welcome every feeling as a guest, even sorrow. Each may be clearing you out for something new.', m: 'grief anxiety suffering change' },
+    { t: 'Rumi', r: 'Attributed to Rumi', k: 't', x: 'What you are seeking is also seeking you.', m: 'purpose love faith hope' },
+    { t: 'Stoics', r: 'Marcus Aurelius, Meditations 5.20', k: 't', x: 'What stands in the way becomes the way. Obstacles can be turned into the work itself.', m: 'suffering work failure purpose' },
+    { t: 'Stoics', r: 'Epictetus, Enchiridion 1', k: 't', x: 'Some things are up to us and some are not. Peace comes from caring for what is ours to govern.', m: 'control anxiety anger future' },
+    { t: 'Stoics', r: 'Marcus Aurelius, Meditations 2.1', k: 't', x: 'Begin the day expecting difficult people, and meet them without anger, because we were made to work together.', m: 'anger relationships work' },
+    { t: 'Christian mystics', r: 'Julian of Norwich, Revelations of Divine Love', k: 't', x: 'All shall be well, and all manner of thing shall be well.', m: 'fear hope suffering future' },
+    { t: 'Christian mystics', r: 'Teresa of Avila', k: 't', x: 'Let nothing disturb you and nothing frighten you. All things pass. Patience wins everything.', m: 'fear anxiety patience change' },
+    { t: 'Quran', r: 'Quran 94:5-6', k: 't', x: 'With hardship comes ease. Indeed, with hardship comes ease.', m: 'suffering hope hardship patience' },
+    { t: 'Quran', r: 'Quran 13:28', k: 't', x: 'In the remembrance of God, hearts find rest.', m: 'rest peace anxiety faith' },
+    { t: 'Jewish wisdom', r: 'Pirkei Avot 2:16', k: 't', x: 'You are not obliged to finish the work, yet you are not free to give it up.', m: 'work purpose burnout' },
+    { t: 'Jewish wisdom', r: 'Pirkei Avot 4:1', k: 't', x: 'Who is wise? One who learns from everyone. Who is rich? One who is content with their portion.', m: 'wisdom money contentment' },
+    { t: 'Zen', r: 'Zen saying', k: 't', x: 'Before enlightenment, chop wood and carry water. After enlightenment, chop wood and carry water.', m: 'work purpose peace joy' },
+    { t: 'Kahlil Gibran', r: 'Kahlil Gibran, The Prophet, On Pain', k: 't', x: 'Your pain is the breaking of the shell that encloses your understanding.', m: 'suffering grief growth' }
+  ];
+  P.forEach(function (p) { p.th = p.m.split(' '); });
+
+  var LEX = {
+    fear: /afraid|fear|scared|terrif|frighten/, anxiety: /anxi|worr|panic|stress|nervous|overthink/,
+    grief: /grie|mourn|\blost\b|\bloss\b|miss(ing)? |passed away|\bdied\b|funeral/, death: /death|dying|\bdie\b|mortal|afterlife/,
+    loneliness: /\balone\b|lonel|isolat|nobody|no one|abandon/, peace: /peace|calm|\bstill\b|quiet|serene/,
+    rest: /tired|exhaust|sleep|\brest\b|weary|drained/, burnout: /burn(ed)? ?out|overwhelm|too much|overwork/,
+    anger: /angry|anger|rage|furious|resent|bitter|\bhate\b|hatred/, forgiveness: /forgiv|betray|wronged|apolog|grudge/,
+    relationships: /marriage|husband|wife|partner|friend|family|mother|father|parent|\bson\b|daughter|sibling|boss|coworker|relationship|divorce|breakup|girlfriend|boyfriend/,
+    love: /\blove|lover|heart|romanc/, purpose: /purpose|meaning|calling|why am i|direction|\bpath\b|mission|fulfil/,
+    decision: /decid|decision|choice|choose|should i|crossroads/, wisdom: /wisdom|\bwise\b|understand|truth|learn/,
+    doubt: /doubt|unsure|uncertain|don'?t know|confus/, faith: /\bgod\b|faith|believ|pray|\bsoul\b|spirit|heaven|divine/,
+    suffering: /suffer|\bpain|hurt|hardship|struggl|difficult|hard time|trauma|\bsick|illness/, hope: /\bhope|hopeless|despair/,
+    future: /future|tomorrow|next year|what will happen|uncertain/, control: /control|can'?t change|powerless|outcome/,
+    change: /change|ending|transition|moving|new chapter|imperman/, patience: /patien|\bwait|\bslow|\btime\b/,
+    worth: /\bworth|\benough\b|deserve|\bvalue|ashamed|inadequate|insecure|self[- ]esteem/, shame: /shame|guilt|regret|mistake|\bsin\b/,
+    failure: /\bfail|rejected|rejection|laid off|fired/, work: /\bwork|\bjob\b|career|business|income/,
+    money: /money|\bpoor\b|\brich\b|debt|afford|wealth|greed|envy|jealous/, contentment: /content|want more|envy|jealous/,
+    joy: /\bjoy|happy|happiness|grateful|gratitude|thank/, strength: /strong|strength|courage|brave/,
+    hardship: /hardship|difficult/, growth: /grow|growth|become/
+  };
+
+  function themesOf(text) {
+    var s = (text || '').toLowerCase(), out = [];
+    Object.keys(LEX).forEach(function (k) { if (LEX[k].test(s)) out.push(k); });
+    return out;
+  }
+  function pick(text) {
+    var th = themesOf(text);
+    if (!th.length) th = ['peace', 'hope', 'faith'];
+    var scored = P.map(function (p) {
+      var n = 0; th.forEach(function (t) { if (p.th.indexOf(t) > -1) n++; });
+      return { p: p, s: n + Math.random() * 0.6 };
+    }).sort(function (a, b) { return b.s - a.s; });
+    var out = [], per = {};
+    for (var i = 0; i < scored.length && out.length < 6; i++) {
+      var q = scored[i].p;
+      if ((per[q.t] || 0) >= 2) continue;
+      per[q.t] = (per[q.t] || 0) + 1;
+      out.push(q);
+    }
+    return out;
+  }
+
+  /* ---------- Sky: drifting cloud banks and quiet stars ---------- */
+  var sky = $('sky'), cx = sky.getContext('2d');
+  var W = 0, H = 0, dpr = 1, banks = [], stars = [], motes = [], tNow = 0, raf = 0, lastTs = 0;
+  function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function sprite(w, h, seed, color) {
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var g = c.getContext('2d'), r = rng(seed), n = 80;
+    for (var i = 0; i < n; i++) {
+      var x = w * r(), y = h * (0.5 + (r() - 0.5) * 0.4), rad = h * (0.14 + r() * 0.22);
+      for (var o = -1; o <= 1; o++) {
+        var gr = g.createRadialGradient(x + o * w, y, 0, x + o * w, y, rad);
+        gr.addColorStop(0, 'rgba(' + color + ',0.24)'); gr.addColorStop(0.5, 'rgba(' + color + ',0.09)'); gr.addColorStop(1, 'rgba(' + color + ',0)');
+        g.fillStyle = gr; g.beginPath(); g.arc(x + o * w, y, rad, 0, 6.2832); g.fill();
+      }
+    }
+    /* fade the top and bottom edges to nothing so no band or line ever shows */
+    g.globalCompositeOperation = 'destination-in';
+    var m = g.createLinearGradient(0, 0, 0, h);
+    m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(0.3, 'rgba(0,0,0,1)'); m.addColorStop(0.7, 'rgba(0,0,0,1)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = m; g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = 'source-over';
+    return c;
+  }
+  function build() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    sky.width = Math.round(W * dpr); sky.height = Math.round(H * dpr);
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var sw = Math.max(Math.round(W * 1.3), 900);
+    var cfg = [
+      { y: 0.06, h: 0.36, sp: 3, a: 0.55, c: '150,140,230', s: 3 },
+      { y: 0.22, h: 0.40, sp: 5, a: 0.6, c: '185,160,235', s: 11 },
+      { y: 0.38, h: 0.42, sp: 8, a: 0.7, c: '215,180,235', s: 17 },
+      { y: 0.54, h: 0.44, sp: 12, a: 0.8, c: '250,205,215', s: 23 },
+      { y: 0.70, h: 0.46, sp: 17, a: 0.9, c: '255,226,205', s: 31 },
+      { y: 0.86, h: 0.46, sp: 24, a: 0.95, c: '255,244,228', s: 41 },
+      { y: 1.0, h: 0.40, sp: 32, a: 1, c: '255,250,240', s: 59 }
+    ];
+    banks = cfg.map(function (b) {
+      var hh = Math.round(H * b.h);
+      return { img: sprite(sw, hh, b.s, b.c), sw: sw, hh: hh, y: H * b.y, sp: b.sp, a: b.a, off: Math.random() * sw };
+    });
+    var r = rng(77); stars = [];
+    for (var i = 0; i < 70; i++) stars.push({ x: r(), y: r() * 0.55, r: 0.4 + r() * 1.1, ph: r() * 6.28, sp: 0.4 + r() * 0.9 });
+    var m = rng(131); motes = [];
+    for (var k = 0; k < 46; k++) motes.push({ x: m() * W, y: m() * H, v: 4 + m() * 9, ph: m() * 6.28, sw: 8 + m() * 20, r: 0.6 + m() * 1.5 });
+  }
+  function draw(dt) {
+    cx.clearRect(0, 0, W, H);
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i], a = 0.25 + 0.25 * Math.sin(tNow * s.sp + s.ph);
+      cx.fillStyle = 'rgba(255,248,235,' + a.toFixed(3) + ')';
+      cx.beginPath(); cx.arc(s.x * W, s.y * H, s.r, 0, 6.2832); cx.fill();
+    }
+    for (var j = 0; j < banks.length; j++) {
+      var b = banks[j]; b.off = (b.off + b.sp * dt) % b.sw;
+      cx.globalAlpha = b.a;
+      for (var x = -b.off; x < W; x += b.sw) cx.drawImage(b.img, x, b.y - b.hh / 2 + Math.sin(tNow * 0.1 + j) * 6);
+    }
+    cx.globalAlpha = 1;
+    for (var q = 0; q < motes.length; q++) {
+      var o = motes[q];
+      o.y -= o.v * dt; if (o.y < -12) o.y = H + 12;
+      var mx = o.x + Math.sin(tNow * 0.3 + o.ph) * o.sw, ma = 0.18 + 0.4 * (Math.sin(tNow * 0.9 + o.ph) + 1) / 2;
+      cx.fillStyle = 'rgba(255,226,170,' + (ma * 0.16).toFixed(3) + ')';
+      cx.beginPath(); cx.arc(mx, o.y, o.r * 4, 0, 6.2832); cx.fill();
+      cx.fillStyle = 'rgba(255,240,205,' + ma.toFixed(3) + ')';
+      cx.beginPath(); cx.arc(mx, o.y, o.r, 0, 6.2832); cx.fill();
+    }
+  }
+  function frame(ts) {
+    var dt = Math.min(0.05, (ts - lastTs) / 1000 || 0); lastTs = ts; tNow += dt;
+    draw(reduce ? 0 : dt); raf = requestAnimationFrame(frame);
+  }
+  function startSky() { cancelAnimationFrame(raf); lastTs = performance.now(); if (reduce) { draw(0); } else { raf = requestAnimationFrame(frame); } }
+  var rz; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { build(); startSky(); }, 150); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) cancelAnimationFrame(raf); else startSky(); });
+  build(); startSky();
+
+  /* ---------- Soundscape: a warm drone, slow wind and sparse bells, all generated in the browser ---------- */
+  var ac = null, master = null, audioBus = null, started = false, soundOn = false, chimeT = 0;
+  var muteBtn = $('mute'), muted = false;
+  function setMuteUI() {
+    muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false'); muteBtn.setAttribute('aria-label', muted ? 'Unmute sound' : 'Mute sound');
+    $('wave1').style.opacity = $('wave2').style.opacity = muted ? 0.2 : 1;
+  }
+  function impulse(c, sec, decay) {
+    var n = (c.sampleRate * sec) | 0, b = c.createBuffer(2, n, c.sampleRate);
+    for (var ch = 0; ch < 2; ch++) { var d = b.getChannelData(ch); for (var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, decay); }
+    return b;
+  }
+  function chime(bus) {
+    if (!ac || !soundOn || muted) return;
+    var t = ac.currentTime, scale = [587.33, 659.25, 739.99, 880, 987.77, 1174.66], f = scale[(Math.random() * scale.length) | 0];
+    [[1, 0.14], [2.76, 0.05], [5.4, 0.02]].forEach(function (pa) {
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.value = f * pa[0];
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(pa[1], t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 6);
+      o.connect(g); g.connect(bus); o.start(t); o.stop(t + 6.2);
+    });
+  }
+  /* Chant: sung vowels built from a sawtooth through three formant filters, moving stepwise in the church modes
+     (Dorian on D, Phrygian on E, Lydian on F, Mixolydian on G). Each answer gets a random mix of phrases. */
+  var NOTES = [98, 110, 123.47, 130.81, 146.83, 164.81, 174.61, 196, 220, 246.94];
+  var VOWELS = { a: [730, 1090, 2440], o: [570, 840, 2410], u: [300, 870, 2240], e: [530, 1840, 2480] };
+  var lastPattern = '';
+  function pickOf(list) { return list[(Math.random() * list.length) | 0]; }
+  function sing(f, t, dur, vowel, level) {
+    var fm = VOWELS[vowel], out = ac.createGain(), att = Math.min(0.9, dur * 0.4);
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.linearRampToValueAtTime(level, t + att);
+    out.gain.setValueAtTime(level, t + dur);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + dur + 1.4);
+    out.connect(audioBus);
+    [-9, 0, 8].forEach(function (cents) {
+      var o = ac.createOscillator(), sum = ac.createGain(), vib = ac.createOscillator(), vg = ac.createGain();
+      o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = cents;
+      vib.frequency.value = 4.8 + Math.random() * 1.2; vg.gain.value = 5; vib.connect(vg); vg.connect(o.detune);
+      sum.gain.value = 0.33; o.connect(sum);
+      fm.forEach(function (fr, k) {
+        var bp = ac.createBiquadFilter(), g = ac.createGain();
+        bp.type = 'bandpass'; bp.frequency.value = fr; bp.Q.value = 9; g.gain.value = [3, 1.7, 0.75][k];
+        sum.connect(bp); bp.connect(g); g.connect(out);
+      });
+      o.start(t); vib.start(t); o.stop(t + dur + 1.5); vib.stop(t + dur + 1.5);
+    });
+  }
+  function neume(fin) {
+    var n = 3 + ((Math.random() * 4) | 0), idx = fin + ((Math.random() * 3) | 0), line = [], steps = [-2, -1, -1, 0, 1, 1, 2];
+    for (var i = 0; i < n; i++) { line.push(idx); idx = Math.max(1, Math.min(9, idx + pickOf(steps))); }
+    line.push(fin);
+    return line;
+  }
+  function chantEvent(t, fin) {
+    var pats = ['neume', 'organum', 'drone', 'amen'].filter(function (p) { return p !== lastPattern; });
+    var p = pickOf(pats), vowel = pickOf(['a', 'o', 'u', 'e']), total = 0, i;
+    lastPattern = p;
+    if (p === 'drone') {
+      sing(146.83, t, 7, pickOf(['o', 'u']), 0.3); sing(220, t + 0.6, 6.4, pickOf(['o', 'u']), 0.22);
+      return 7;
+    }
+    if (p === 'amen') {
+      var am = [[fin + 2, 'a'], [fin + 1, 'e'], [fin, 'e']];
+      am.forEach(function (a, k) { var d = 2.1; sing(NOTES[Math.min(9, a[0])], t + k * 1.8, d, a[1], 0.34); total = k * 1.8 + d; });
+      return total;
+    }
+    var line = neume(fin), at = 0;
+    for (i = 0; i < line.length; i++) {
+      var d = 1.3 + Math.random() * 1.1, f = NOTES[line[i]], v = i === line.length - 1 && Math.random() < 0.5 ? 'u' : vowel;
+      sing(f, t + at, d, v, 0.34);
+      if (p === 'organum' && f / 1.5 > 70) sing(f / 1.5, t + at, d, v, 0.22);
+      at += d - 0.3;
+    }
+    return at + 0.3;
+  }
+  function playChant() {
+    if (!ac || !audioBus) return;
+    if (ac.state === 'suspended') ac.resume();
+    var fin = pickOf([4, 5, 6, 7]), t = ac.currentTime + 0.4, events = 1 + (Math.random() < 0.65 ? 1 : 0) + (Math.random() < 0.3 ? 1 : 0);
+    for (var i = 0; i < events; i++) { var d = chantEvent(t, fin); t += d + 0.6 + Math.random() * 1.8; }
+  }
+
+  /* The bed: drone, slow wind and the 40 Hz binaural beat (200 Hz left, 240 Hz right, dry) are rendered into a seamless 20 second
+     loop and played through an ordinary audio element, which phones accept far more readily than Web Audio. */
+  var bedEl = null, bedUrl = '', bedReady = false;
+  function buildBed() {
+    var sr = 22050, secs = 20, n = sr * secs, TAU = 6.283185307179586;
+    var L = new Float32Array(n), R = new Float32Array(n), noise = new Float32Array(n), prev = 0;
+    for (var i = 0; i < n; i++) { prev = prev * 0.985 + (Math.random() * 2 - 1) * 0.12; noise[i] = prev; }
+    var fade = sr * 2;
+    for (var k = 0; k < fade; k++) { var w = k / fade; noise[n - fade + k] = noise[n - fade + k] * (1 - w) + noise[k] * w; }
+    var pad = [[73.45, 0.9], [110, 0.8], [146.85, 0.8], [220, 0.6], [293.65, 0.5], [440, 0.25]];
+    for (var t = 0; t < n; t++) {
+      var x = t / sr, sw = 0.65 + 0.35 * Math.sin(TAU * 0.1 * x), d = 0;
+      for (var p = 0; p < pad.length; p++) d += pad[p][1] * Math.sin(TAU * pad[p][0] * x + p);
+      d *= 0.075 * sw;
+      var wind = 0;
+      var bl = 0.2 * Math.sin(TAU * 200 * x), br = 0.2 * Math.sin(TAU * 240 * x);
+      L[t] = d + wind + bl; R[t] = d + wind * 0.9 + br;
+    }
+    var bytes = new Uint8Array(44 + n * 4), dv = new DataView(bytes.buffer);
+    function str(o, s2) { for (var q = 0; q < s2.length; q++) dv.setUint8(o + q, s2.charCodeAt(q)); }
+    str(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); str(8, 'WAVE'); str(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+    dv.setUint16(22, 2, true); dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true);
+    str(36, 'data'); dv.setUint32(40, n * 4, true);
+    for (var m = 0; m < n; m++) {
+      dv.setInt16(44 + m * 4, Math.max(-1, Math.min(1, L[m])) * 30000, true);
+      dv.setInt16(46 + m * 4, Math.max(-1, Math.min(1, R[m])) * 30000, true);
+    }
+    return bytes;
+  }
+  function b64(bytes) { var out = '', CH = 0x8000; for (var i = 0; i < bytes.length; i += CH) out += String.fromCharCode.apply(null, bytes.subarray(i, i + CH)); return btoa(out); }
+  function prepBed() {
+    try {
+      var bytes = buildBed();
+      bedEl = new Audio(); bedEl.loop = true; bedEl.preload = 'auto'; bedEl.setAttribute('playsinline', ''); bedEl.volume = 0.9;
+      var triedData = false;
+      bedEl.addEventListener('error', function () { if (!triedData) { triedData = true; try { bedEl.src = 'data:audio/wav;base64,' + b64(bytes); if (soundOn) bedEl.play().catch(function () {}); } catch (e) {} } });
+      try { bedUrl = URL.createObjectURL(new Blob([bytes], { type: 'audio/wav' })); bedEl.src = bedUrl; } catch (e) { triedData = true; bedEl.src = 'data:audio/wav;base64,' + b64(bytes); }
+      bedReady = true;
+    } catch (e) { bedReady = false; }
+  }
+  function playBed() {
+    if (!bedEl) return;
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    bedEl.muted = muted;
+    var pr = bedEl.play(); if (pr && pr.catch) pr.catch(function () {});
+  }
+  setTimeout(prepBed, 0);
+  function startAudio() {
+    if (started) return;
+    started = true;
+    playBed(); soundOn = true;
+    ['pointerdown', 'touchend', 'click', 'keydown'].forEach(function (ev) { document.removeEventListener(ev, onFirst); });
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      ac = new AC();
+      try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e0) {}
+      master = ac.createGain(); master.gain.value = 0;
+      var comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 6; master.connect(comp); comp.connect(ac.destination);
+      var conv = ac.createConvolver(); conv.buffer = impulse(ac, 4.5, 2.2);
+      var wet = ac.createGain(); wet.gain.value = 0.6; conv.connect(wet); wet.connect(master);
+      var dry = ac.createGain(); dry.gain.value = 0.7; dry.connect(master);
+      var bus = ac.createGain(); bus.connect(dry); bus.connect(conv); audioBus = bus;
+
+      (function loop() { clearTimeout(chimeT); chimeT = setTimeout(function () { chime(bus); loop(); }, 7000 + Math.random() * 9000); })();
+      soundOn = true;
+      if (ac.state === 'suspended') ac.resume();
+      try { var sb = ac.createBufferSource(); sb.buffer = ac.createBuffer(1, 1, 22050); sb.connect(ac.destination); sb.start(0); } catch (e2) {}
+      master.gain.setTargetAtTime(muted ? 0 : 1, ac.currentTime, 2);
+    } catch (e) {
+      muteBtn.hidden = true;
+    }
+  }
+  function onFirst(e) { if (e && e.target && e.target.closest && e.target.closest('#mute')) return; startAudio(); }
+  muteBtn.addEventListener('click', function () {
+    if (!started) { muted = false; startAudio(); setMuteUI(); return; }
+    muted = !muted; setMuteUI();
+    if (ac && ac.state === 'suspended') ac.resume();
+    if (master) master.gain.setTargetAtTime(muted ? 0 : 1, ac.currentTime, 0.5);
+    if (bedEl) { bedEl.muted = muted; if (!muted && bedEl.paused) { var pr2 = bedEl.play(); if (pr2 && pr2.catch) pr2.catch(function () {}); } }
+  });
+  setMuteUI();
+  var gate = $('gate');
+  function enter() {
+    if (gate.classList.contains('open')) return;
+    startAudio(); wake();
+    gate.classList.add('open');
+    setTimeout(function () { gate.hidden = true; }, 2600);
+    try { if (!(window.matchMedia && matchMedia('(pointer: coarse)').matches)) input.focus({ preventScroll: true }); } catch (e) {}
+  }
+  gate.addEventListener('click', enter);
+  gate.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enter(); } });
+  ['pointerdown', 'touchend', 'click', 'keydown'].forEach(function (ev) { document.addEventListener(ev, onFirst); });
+  /* Keep it playing: browsers suspend audio when the page is hidden or interrupted, so wake it on return. */
+  function wake() { if (ac && ac.state !== 'running') { try { ac.resume(); } catch (e) {} } }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) wake(); });
+  ['pointerdown', 'touchend', 'click'].forEach(function (ev) { document.addEventListener(ev, wake); });
+
+  /* ---------- The conversation ---------- */
+  var ask = $('ask'), input = $('q'), note = $('note'), orb = $('orb'), reply = $('reply'), textEl = $('text'), srcEl = $('src'), bar = $('hairbar');
+  var careEl = $('care'), careText = $('careText'), endEl = $('end'), dots = $('dots');
+  var S = { busy: false, history: [] };
+  var CRISIS = /kill myself|end my life|suicid|want to die|don'?t want to live|hurt myself|self[- ]?harm|cut myself|end it all|better off dead/i;
+  var CARE_MSG = "I am glad you said this out loud. What you carry matters, and you deserve support from a real person right now, not only from words on a screen. Please reach out to someone you trust or to a crisis line. If you might act on these thoughts, contact your local emergency number.";
+  var vanish = null, revealT = 0, leaveT = 0;
+
+  function hideAll() { orb.hidden = true; reply.hidden = true; careEl.hidden = true; endEl.hidden = true; }
+  function setNote(s) { note.textContent = s || ''; }
+
+  function buildPrompt(q, passages) {
+    var lines = passages.map(function (p, i) {
+      return '[' + (i + 1) + '] ' + p.r + (p.k === 'v' ? ' (KJV, may be quoted word for word): ' : ' (paraphrase, never put in quotation marks): ') + p.x;
+    }).join('\n');
+    var hist = S.history.slice(-2).map(function (h) { return 'They asked: ' + h.q + '\nYou answered: ' + h.a.slice(0, 500); }).join('\n\n');
+    return [
+      'You are the quiet voice at the heart of a contemplative app called Talk with God. A person has come to sit still and ask something. Reply as a calm, loving, ageless voice that speaks directly to them and may say "my child" at most once. Blend the passages below into one coherent reply instead of listing them.',
+      '',
+      'Rules:',
+      '- 70 to 110 words. Plain text only. No lists, headings, markdown or emoji. Do not use dashes as punctuation.',
+      '- Speak to their actual situation. Be gentle and concrete, and leave them with one small thing to hold in mind or do today.',
+      '- Quote a KJV verse only word for word as given, in quotation marks. Everything else is paraphrase and must not use quotation marks.',
+      '- Never invent a quotation, a source, or a claim about what a tradition teaches beyond the passages given.',
+      '- Give no medical, legal or financial instructions. Do not predict their future or claim to know what is meant for them specifically. When it matters, encourage trusted people and qualified professionals.',
+      '- Never shame, condemn or threaten. Do not rank religions. If asked which path is true, answer with respect for each.',
+      '- If they mention wanting to die, harming themselves or someone else, being in danger, or abuse, begin the reply with [[CARE]] and then answer in a plain, warm, human voice with no mystical persona, in under 70 words: say you are glad they said it, that they deserve support from a real person now, and to contact local emergency services or a crisis line.',
+      '- After the reply, add a last line that starts with SOURCES: followed by the references you actually used, separated by " · ".',
+      '',
+      'PASSAGES',
+      lines,
+      '',
+      hist ? 'CONVERSATION SO FAR\n' + hist + '\n' : '',
+      'THEIR QUESTION',
+      q
+    ].join('\n');
+  }
+  function parse(raw) {
+    var t = String(raw || '').trim(), care = false;
+    if (/^\[\[CARE\]\]/.test(t)) { care = true; t = t.replace(/^\[\[CARE\]\]\s*/, ''); }
+    var parts = t.split(/\n\s*SOURCES:\s*/i);
+    return { care: care, text: parts[0].trim(), src: (parts[1] || '').trim() };
+  }
+  function fallback(passages) {
+    var p = passages[0];
+    return { fallback: true, text: p.k === 'v' ? '“' + p.x + '”' : p.x, src: p.r };
+  }
+
+  async function getAnswer(q, passages) {
+    var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 45000);
+    try {
+      var res = await fetch('/.netlify/functions/ask', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal,
+        body: JSON.stringify({
+          q: q,
+          passages: passages.map(function (p) { return { r: p.r, k: p.k, x: p.x }; }),
+          history: S.history.slice(-2).map(function (h) { return { q: h.q, a: h.a.slice(0, 500) }; })
+        })
+      });
+      clearTimeout(to);
+      if (res.status === 429) return { quiet: true };
+      if (!res.ok) return { quiet: true };
+      var data = await res.json();
+      var r = parse(data && data.text);
+      if (!r.text) return { quiet: true };
+      return r;
+    } catch (err) {
+      clearTimeout(to);
+      return { quiet: true };
+    }
+  }
+
+  function idle() {
+    hideAll(); S.busy = false;
+    ask.hidden = false; ask.classList.remove('away');
+    input.placeholder = S.history.length === 0 ? 'talk to me my child' : (S.history.length === 1 ? 'ask me more' : 'final question');
+    renderDots();
+    if (!(window.matchMedia && matchMedia('(pointer: coarse)').matches)) { try { input.focus({ preventScroll: true }); } catch (e) {} }
+  }
+  function renderDots() {
+    var rem = 3 - S.history.length;
+    if (!S.history.length || rem <= 0) { dots.hidden = true; return; }
+    dots.hidden = false;
+    dots.setAttribute('aria-label', rem + (rem === 1 ? ' follow up question remains' : ' follow up questions remain'));
+    var b = dots.children;
+    for (var i = 0; i < b.length; i++) b[i].className = i < rem ? 'on' : '';
+  }
+
+  function stopVanish() { if (vanish) { cancelAnimationFrame(vanish.raf); vanish = null; } clearTimeout(revealT); clearTimeout(leaveT); }
+  function startVanish(total, done) {
+    vanish = { total: total, remaining: total, last: performance.now(), paused: false, done: done, raf: 0 };
+    var tick = function (now) {
+      if (!vanish) return;
+      var dt = Math.min(100, now - vanish.last); vanish.last = now;
+      if (!vanish.paused) vanish.remaining -= dt;
+      bar.style.transform = 'scaleX(' + Math.max(0, vanish.remaining / vanish.total).toFixed(4) + ')';
+      if (vanish.remaining <= 0) { var d = vanish.done; vanish = null; d(); return; }
+      vanish.raf = requestAnimationFrame(tick);
+    };
+    vanish.raf = requestAnimationFrame(tick);
+  }
+  ['pointerenter', 'focusin'].forEach(function (ev) { reply.addEventListener(ev, function () { if (vanish) vanish.paused = true; }); });
+  ['pointerleave', 'focusout'].forEach(function (ev) { reply.addEventListener(ev, function () { if (vanish) vanish.paused = false; }); });
+
+  var dismissed = false;
+  function dismiss(countIt, q, a) {
+    if (dismissed) return; dismissed = true;
+    stopVanish();
+    reply.classList.add('leaving');
+    leaveT = setTimeout(function () {
+      reply.hidden = true; reply.classList.remove('leaving', 'timing');
+      if (countIt) S.history.push({ q: q, a: a });
+      if (S.history.length >= 3) S.history = [];
+      idle();
+    }, reduce ? 50 : 3300);
+  }
+  function showAnswer(r, countIt, q) {
+    dismissed = false;
+    leaveBtn.onclick = function () { dismiss(countIt, q, r.text); };
+    hideAll(); ask.hidden = true; dots.hidden = true;
+    textEl.textContent = '';
+    var words = r.text.split(/\s+/).filter(Boolean);
+    words.forEach(function (w, i) {
+      var s = document.createElement('span'); s.className = 'w'; s.style.setProperty('--i', i); s.textContent = w;
+      textEl.appendChild(s); textEl.appendChild(document.createTextNode(' '));
+    });
+    var revealMs = reduce ? 300 : words.length * 65 + 1400;
+    playChant();
+    srcEl.textContent = r.src || ''; srcEl.style.animationDelay = reduce ? '0s' : (words.length * 0.065) + 's';
+    srcEl.hidden = true;
+    bar.style.transform = 'scaleX(1)';
+    reply.classList.remove('leaving', 'timing'); reply.hidden = false;
+    var hold = Math.max(10000, words.length * 180);
+    stopVanish();
+    revealT = setTimeout(function () {
+      reply.classList.add('timing');
+      startVanish(hold, function () { dismiss(countIt, q, r.text); });
+    }, revealMs);
+  }
+  function showCare(msg) {
+    stopVanish(); hideAll(); ask.hidden = true; dots.hidden = true;
+    careText.textContent = msg; careEl.hidden = false;
+  }
+  var leaveBtn = $('leave');
+  function showEnd() { hideAll(); ask.hidden = true; dots.hidden = true; endEl.hidden = false; }
+
+  async function begin(q) {
+    setNote('');
+    if (CRISIS.test(q)) { input.value = ''; showCare(CARE_MSG); return; }
+    S.busy = true; input.value = '';
+    ask.classList.add('away'); dots.hidden = true;
+    hideAll(); orb.hidden = false;
+    var ctxText = q + (S.history.length ? ' ' + S.history[S.history.length - 1].q : '');
+    var passages = pick(ctxText);
+    var r = await getAnswer(q, passages);
+    orb.hidden = true;
+    if (r.denied) { idle(); setNote('Allow this page to ask Claude when prompted, then send your question again.'); return; }
+    if (r.quiet) { idle(); setNote('The silence is long just now. Wait a moment and try again.'); return; }
+    if (r.care) { S.busy = false; showCare(r.text || CARE_MSG); return; }
+    S.busy = false;
+    showAnswer(r, true, q);
+  }
+
+  ask.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (S.busy) return;
+    var q = input.value.trim();
+    if (!q) return;
+    startAudio();
+    begin(q);
+  });
+  $('careClose').addEventListener('click', function () { idle(); });
+  $('again').addEventListener('click', function () { S.history = []; idle(); });
+
+  idle();
+})();
+</script>
+
+</body>
+</html>
