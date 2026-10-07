@@ -75,13 +75,13 @@ exports.handler = async (event) => {
       const d = await r.json();
       text = String((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
     } else if (gKey) {
-      const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
+      const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
       const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-goog-api-key': gKey },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 400, temperature: 0.85, thinkingConfig: { thinkingBudget: 0 } }
+          generationConfig: Object.assign({ maxOutputTokens: 900, temperature: 0.85 }, /^gemini-2/.test(model) ? { thinkingConfig: { thinkingBudget: 0 } } : {})
         })
       });
       if (r.status === 429) return json(429, { error: 'busy' });
