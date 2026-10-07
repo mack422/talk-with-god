@@ -91,6 +91,7 @@ exports.handler = async (event) => {
   if (aKey) chain.push(['claude', p => viaClaude(aKey, p)]);
   if (gKey) chain.push(['gemini', p => viaGemini(gKey, p)]);
   if (qKey) chain.push(['groq', p => viaChat('groq', 'https://api.groq.com/openai/v1/chat/completions', qKey, process.env.GROQ_MODEL || 'llama-3.3-70b-versatile', p)]);
+  if (process.env.MISTRAL_API_KEY) chain.push(['mistral', p => viaChat('mistral', 'https://api.mistral.ai/v1/chat/completions', process.env.MISTRAL_API_KEY, process.env.MISTRAL_MODEL || 'mistral-small-latest', p)]);
   if (dKey) chain.push(['deepseek', p => viaChat('deepseek', 'https://api.deepseek.com/chat/completions', dKey, 'deepseek-chat', p)]);
   if (event.httpMethod !== 'POST') {
     // Open this address in a browser to see which providers this site can use. No secrets are shown.
