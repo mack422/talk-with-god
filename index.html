@@ -94,7 +94,7 @@ body {
 .stage {
   position: fixed; inset: 0; z-index: 5;
   display: grid;
-  padding: 5rem 1rem 8rem; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box;
+  padding: 5rem 1rem 11rem; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box;
 }
 .stage > * { grid-area: 1 / 1; margin: auto; }
 
@@ -162,12 +162,12 @@ body {
 }
 .btn:hover { background: rgba(243, 201, 139, 0.14); border-color: var(--glow); }
 
-.dots { position: fixed; left: 0; right: 0; z-index: 5; bottom: calc(4.4rem + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; gap: 0.7rem; }
+.dots { position: fixed; left: 0; right: 0; z-index: 5; bottom: calc(7.8rem + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; gap: 0.7rem; }
 .dots b { width: 0.5rem; height: 0.5rem; border-radius: 50%; border: 1px solid var(--line); box-sizing: border-box; }
 .dots b.on { background: var(--glow); border-color: var(--glow); box-shadow: 0 0 12px rgba(243, 201, 139, 0.8); }
 
 .foot {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; box-sizing: border-box;
+  position: fixed; left: 0; right: 0; bottom: 3.2rem; z-index: 5; box-sizing: border-box;
   padding: 0.9rem 1rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
   pointer-events: none;
   text-align: center; font-style: italic; font-size: 0.78rem; line-height: 1.45; letter-spacing: 0.02em; color: var(--mist); opacity: .6; text-shadow: 0 1px 12px rgba(8,6,32,.9);
