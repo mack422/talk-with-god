@@ -93,10 +93,10 @@ body {
 
 .stage {
   position: fixed; inset: 0; z-index: 5;
-  display: grid; place-items: center;
-  padding: 5rem 1rem;
+  display: grid;
+  padding: 5rem 1rem 8rem; overflow-y: auto; -webkit-overflow-scrolling: touch; box-sizing: border-box;
 }
-.stage > * { grid-area: 1 / 1; }
+.stage > * { grid-area: 1 / 1; margin: auto; }
 
 .ask { position: relative; width: min(40rem, 100%); transition: opacity 1s ease; }
 .ask.away { opacity: 0; pointer-events: none; }
@@ -147,7 +147,7 @@ body {
 .reply.timing .hair { opacity: 1; }
 .hair i { display: block; height: 100%; background: var(--glow); transform-origin: left; transform: scaleX(1); }
 
-.leave-btn { margin-top: 1.4rem; opacity: 0; pointer-events: none; transition: opacity 1.2s, background .3s, border-color .3s; }
+.leave-btn { position: relative; z-index: 9; touch-action: manipulation; -webkit-tap-highlight-color: transparent; margin-top: 1.4rem; min-height: 2.75rem; opacity: 0; pointer-events: none; transition: opacity 1.2s, background .3s, border-color .3s; }
 .reply.timing .leave-btn { opacity: 1; pointer-events: auto; }
 .reply.leaving .leave-btn { opacity: 0; pointer-events: none; }
 .care, .end { width: min(32rem, 100%); text-align: center; display: grid; gap: 1.2rem; justify-items: center; }
@@ -169,6 +169,7 @@ body {
 .foot {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; box-sizing: border-box;
   padding: 0.9rem 1rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
   text-align: center; font-style: italic; font-size: 0.78rem; line-height: 1.45; letter-spacing: 0.02em; color: var(--mist); opacity: .6; text-shadow: 0 1px 12px rgba(8,6,32,.9);
 }
 .foot span { display: block; max-width: 36rem; margin: 0 auto; }
