@@ -45,7 +45,8 @@ exports.handler = async (event) => {
   const json = (code, body) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (event.httpMethod !== 'POST') return json(405, { error: 'POST only' });
   const gKey = process.env.GEMINI_API_KEY, aKey = process.env.ANTHROPIC_API_KEY;
-  if (!gKey && !aKey) return json(500, { error: 'GEMINI_API_KEY not found on this site' });
+  const dKey = process.env.DEEPSEEK_API_KEY, qKey = process.env.GROQ_API_KEY;
+  if (!gKey && !aKey && !dKey && !qKey) return json(500, { error: 'No AI key found on this site' });
   const ip = (event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || 'unknown');
   if (!ok(ip)) return json(429, { error: 'slow down' });
   let b;
@@ -57,8 +58,21 @@ exports.handler = async (event) => {
   const prompt = buildPrompt(q, passages, history);
   try {
     let text = '';
-    if (gKey) {
-      const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+    if (dKey || qKey) {
+      // DeepSeek or Groq, both speak the same chat format.
+      const url = dKey ? 'https://api.deepseek.com/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
+      const model = process.env.AI_MODEL || (dKey ? 'deepseek-chat' : 'llama-3.3-70b-versatile');
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: 'Bearer ' + (dKey || qKey) },
+        body: JSON.stringify({ model, max_tokens: 400, temperature: 0.85, messages: [{ role: 'user', content: prompt }] })
+      });
+      if (r.status === 429) return json(429, { error: 'busy' });
+      if (!r.ok) { let m = ''; try { m = clip(((await r.json()).error || {}).message, 160); } catch (e) {} return json(502, { error: (dKey ? 'deepseek ' : 'groq ') + r.status + ' ' + m }); }
+      const d = await r.json();
+      text = String((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
+    } else if (gKey) {
+      const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
       const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-goog-api-key': gKey },
