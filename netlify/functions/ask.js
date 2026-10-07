@@ -41,15 +41,62 @@ function buildPrompt(q, passages, history) {
   ].join('\n');
 }
 
+// Each provider takes the prompt and returns the reply text, or throws an Error with a short reason.
+async function errText(r, name) {
+  let m = ''; try { m = clip(((await r.json()).error || {}).message, 140); } catch (e) {}
+  const err = new Error(name + ' ' + r.status + ' ' + m); err.status = r.status; return err;
+}
+async function viaGemini(key, prompt) {
+  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: Object.assign({ maxOutputTokens: 900, temperature: 0.85 }, /^gemini-2/.test(model) ? { thinkingConfig: { thinkingBudget: 0 } } : {})
+    })
+  });
+  if (!r.ok) throw await errText(r, 'gemini');
+  const d = await r.json();
+  const parts = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || [];
+  return parts.map(c => c.text || '').join('').trim();
+}
+async function viaChat(name, url, key, model, prompt) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: 'Bearer ' + key },
+    body: JSON.stringify({ model, max_tokens: 400, temperature: 0.85, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!r.ok) throw await errText(r, name);
+  const d = await r.json();
+  return String((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
+}
+async function viaClaude(key, prompt) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: MODEL, max_tokens: 320, messages: [{ role: 'user', content: prompt }] })
+  });
+  if (!r.ok) throw await errText(r, 'claude');
+  const d = await r.json();
+  return (d.content || []).map(c => c.text || '').join('').trim();
+}
+
 exports.handler = async (event) => {
   const json = (code, body) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  if (event.httpMethod !== 'POST') {
-    // Open this address in a browser to see which AI keys this site can see. No secrets are shown.
-    return json(200, { ok: true, keys: { GROQ_API_KEY: !!process.env.GROQ_API_KEY, GEMINI_API_KEY: !!(process.env.GEMINI_API_KEY || process.env.GEMENI_API_KEY), DEEPSEEK_API_KEY: !!process.env.DEEPSEEK_API_KEY, ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY } });
-  }
   const gKey = process.env.GEMINI_API_KEY || process.env.GEMENI_API_KEY, aKey = process.env.ANTHROPIC_API_KEY;
   const dKey = process.env.DEEPSEEK_API_KEY, qKey = process.env.GROQ_API_KEY;
-  if (!gKey && !aKey && !dKey && !qKey) return json(500, { error: 'No AI key found on this site' });
+  // Providers are tried in this order. If one is busy or fails, the next one answers.
+  const chain = [];
+  if (aKey) chain.push(['claude', p => viaClaude(aKey, p)]);
+  if (gKey) chain.push(['gemini', p => viaGemini(gKey, p)]);
+  if (qKey) chain.push(['groq', p => viaChat('groq', 'https://api.groq.com/openai/v1/chat/completions', qKey, process.env.GROQ_MODEL || 'llama-3.3-70b-versatile', p)]);
+  if (dKey) chain.push(['deepseek', p => viaChat('deepseek', 'https://api.deepseek.com/chat/completions', dKey, 'deepseek-chat', p)]);
+  if (event.httpMethod !== 'POST') {
+    // Open this address in a browser to see which providers this site can use. No secrets are shown.
+    return json(200, { ok: true, order: chain.map(c => c[0]) });
+  }
+  if (!chain.length) return json(500, { error: 'No AI key found on this site' });
   const ip = (event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || 'unknown');
   if (!ok(ip)) return json(429, { error: 'slow down' });
   let b;
@@ -59,48 +106,13 @@ exports.handler = async (event) => {
   const history = Array.isArray(b.history) ? b.history.slice(0, 2) : [];
   if (!q || !passages.length) return json(400, { error: 'missing' });
   const prompt = buildPrompt(q, passages, history);
-  try {
-    let text = '';
-    if (dKey || qKey) {
-      // DeepSeek or Groq, both speak the same chat format.
-      const url = dKey ? 'https://api.deepseek.com/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
-      const model = process.env.AI_MODEL || (dKey ? 'deepseek-chat' : 'llama-3.3-70b-versatile');
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: 'Bearer ' + (dKey || qKey) },
-        body: JSON.stringify({ model, max_tokens: 400, temperature: 0.85, messages: [{ role: 'user', content: prompt }] })
-      });
-      if (r.status === 429) return json(429, { error: 'busy' });
-      if (!r.ok) { let m = ''; try { m = clip(((await r.json()).error || {}).message, 160); } catch (e) {} return json(502, { error: (dKey ? 'deepseek ' : 'groq ') + r.status + ' ' + m }); }
-      const d = await r.json();
-      text = String((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
-    } else if (gKey) {
-      const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
-      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': gKey },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: Object.assign({ maxOutputTokens: 900, temperature: 0.85 }, /^gemini-2/.test(model) ? { thinkingConfig: { thinkingBudget: 0 } } : {})
-        })
-      });
-      if (r.status === 429) return json(429, { error: 'busy' });
-      if (!r.ok) { let m = ''; try { m = clip(((await r.json()).error || {}).message, 160); } catch (e) {} return json(502, { error: 'gemini ' + r.status + ' ' + m }); }
-      const d = await r.json();
-      const parts = (d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || [];
-      text = parts.map(c => c.text || '').join('').trim();
-    } else {
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-api-key': aKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: MODEL, max_tokens: 320, messages: [{ role: 'user', content: prompt }] })
-      });
-      if (r.status === 429) return json(429, { error: 'busy' });
-      if (!r.ok) return json(502, { error: 'upstream' });
-      const d = await r.json();
-      text = (d.content || []).map(c => c.text || '').join('').trim();
-    }
-    if (!text) return json(502, { error: 'empty reply' });
-    return json(200, { text });
-  } catch (e) { return json(502, { error: 'call failed ' + clip(e && e.message, 80) }); }
+  const failures = [];
+  for (const [name, run] of chain) {
+    try {
+      const text = await run(prompt);
+      if (text) return json(200, { text, by: name });
+      failures.push(name + ' empty');
+    } catch (e) { failures.push(clip(e && e.message, 120)); }
+  }
+  return json(502, { error: failures.join(' | ') });
 };
